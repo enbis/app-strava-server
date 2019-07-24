@@ -17,7 +17,8 @@ import (
 var configuration Configuration
 
 type Configuration struct {
-	Token string
+	Token    string
+	ClientId string
 }
 
 func init() {
@@ -53,13 +54,48 @@ func TestRedirectStravaAuthPage(t *testing.T) {
 		os.Exit(1)
 	}
 	q := req.URL.Query()
-	q.Add("client_id", "37403")
+	q.Add("client_id", configuration.ClientId)
 	q.Add("redirect_uri", "http://localhost:3300")
 	q.Add("response_type", "code")
 	q.Add("scope", "activity:write")
 	req.URL.RawQuery = q.Encode()
 
 	fmt.Println(req.URL.String())
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	log.Println(string([]byte(body)))
+}
+
+func TestListActs(t *testing.T) {
+	fmt.Println("-------------TestListActs-----------", configuration.Token)
+
+	var bearer = "Bearer " + configuration.Token
+
+	req, err := http.NewRequest("GET", "https://www.strava.com/api/v3/athlete/activities", nil)
+	req.Header.Add("Authorization", bearer)
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	log.Println(string([]byte(body)))
+
 }
 
 func TestGetAct(t *testing.T) {
