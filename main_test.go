@@ -21,6 +21,21 @@ type Configuration struct {
 	ClientId string
 }
 
+type Response struct {
+	Message string
+}
+
+type Activities struct {
+	Act []Activity
+}
+
+type Activity struct {
+	Name        string
+	Distance    float64
+	Moving_Time int
+	Type        string
+}
+
 func init() {
 	fmt.Println("init")
 
@@ -94,7 +109,22 @@ func TestListActs(t *testing.T) {
 	}
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	log.Println(string([]byte(body)))
+	bodyByte := []byte(body)
+	var response Response
+	err = json.Unmarshal(bodyByte, &response)
+	if err != nil {
+		fmt.Println("error:", err)
+		activities := make([]Activity, 0)
+		err = json.Unmarshal(bodyByte, &activities)
+		if err != nil {
+			fmt.Println("error:", err)
+			os.Exit(1)
+		}
+		fmt.Printf("%+v", activities)
+	}
+
+	fmt.Printf("%+v", response)
+	//log.Println(string([]byte(body)))
 
 }
 
