@@ -11,30 +11,13 @@ import (
 	"os"
 	"testing"
 
+	charts "github.com/enbis/app-strava-server/charts"
+	models "github.com/enbis/app-strava-server/models"
+
 	gonfig "github.com/tkanos/gonfig"
 )
 
-var configuration Configuration
-
-type Configuration struct {
-	Token    string
-	ClientId string
-}
-
-type Response struct {
-	Message string
-}
-
-type Activities struct {
-	Act []Activity
-}
-
-type Activity struct {
-	Name        string
-	Distance    float64
-	Moving_Time int
-	Type        string
-}
+var configuration models.Configuration
 
 func init() {
 	fmt.Println("init")
@@ -88,6 +71,35 @@ func TestRedirectStravaAuthPage(t *testing.T) {
 	log.Println(string([]byte(body)))
 }
 
+//Refresh Token with Auth readAll
+func TestRefreshToken(t *testing.T) {
+	fmt.Println("-------------TestRefreshToken-----------")
+	req, err := http.NewRequest("POST", "https://www.strava.com/oauth/token", nil)
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+	q := req.URL.Query()
+	q.Add("client_id", configuration.ClientId)
+	q.Add("client_secret", configuration.ClientSecret)
+	q.Add("grant_type", "refresh_token")
+	q.Add("refresh_token", configuration.RefreshToken)
+	req.URL.RawQuery = q.Encode()
+
+	fmt.Println(req.URL.String())
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	log.Println(string([]byte(body)))
+}
+
+//last 30 activities
 func TestListActs(t *testing.T) {
 	fmt.Println("-------------TestListActs-----------", configuration.Token)
 
@@ -110,17 +122,17 @@ func TestListActs(t *testing.T) {
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	bodyByte := []byte(body)
-	var response Response
+	var response models.Response
 	err = json.Unmarshal(bodyByte, &response)
 	if err != nil {
-		fmt.Println("error:", err)
-		activities := make([]Activity, 0)
+		activities := make([]models.Activity, 0)
 		err = json.Unmarshal(bodyByte, &activities)
 		if err != nil {
 			fmt.Println("error:", err)
 			os.Exit(1)
 		}
 		fmt.Printf("%+v", activities)
+		charts.PrintCh(activities)
 	}
 
 	fmt.Printf("%+v", response)

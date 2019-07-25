@@ -1,6 +1,12 @@
 # app-strava-server
 
+### Install dependencies
+
+- First of all `go get` to find all dependencies, download and install the missing ones.
+
 ### Authorization Error
+
+From Strava docs authentication `http://developers.strava.com/docs/authentication/`
 
 Auth process with new list of scopes, since October 2018.
 
