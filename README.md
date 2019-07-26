@@ -37,4 +37,5 @@ https://www.strava.com/oauth/token?
 Launch server `go run main.go`
 
 ### Test
+
 Run test `go test -run [NameOfTest]`

@@ -7,6 +7,14 @@ type Configuration struct {
 	RefreshToken string
 }
 
+type RefreshedToken struct {
+	Token_Type    string
+	Access_Token  string
+	Expires_At    int
+	Expires_In    int
+	Refresh_Token string
+}
+
 type Response struct {
 	Message string
 }

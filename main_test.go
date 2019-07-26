@@ -11,7 +11,7 @@ import (
 	"os"
 	"testing"
 
-	charts "github.com/enbis/app-strava-server/charts"
+	"github.com/enbis/app-strava-server/data"
 	models "github.com/enbis/app-strava-server/models"
 
 	gonfig "github.com/tkanos/gonfig"
@@ -97,6 +97,13 @@ func TestRefreshToken(t *testing.T) {
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	log.Println(string([]byte(body)))
+	//write on json file new token
+
+	var refreshedToken models.RefreshedToken
+	json.Unmarshal([]byte(body), &refreshedToken)
+
+	data.OverwriteJsonToken(refreshedToken.Access_Token)
+
 }
 
 //last 30 activities
@@ -132,7 +139,6 @@ func TestListActs(t *testing.T) {
 			os.Exit(1)
 		}
 		fmt.Printf("%+v", activities)
-		charts.PrintCh(activities)
 	}
 
 	fmt.Printf("%+v", response)
@@ -165,4 +171,34 @@ func TestGetAct(t *testing.T) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	log.Println(string([]byte(body)))
 
+}
+
+func TestOverwriteFile(t *testing.T) {
+	var testconfig models.Configuration
+
+	//OpenFile
+	jsonfile, err := os.Open("test.json")
+	if err != nil {
+		log.Fatalf("failed opening file: %s", err)
+	}
+	defer jsonfile.Close()
+
+	byteValues, err := ioutil.ReadAll(jsonfile)
+	if err != nil {
+		log.Fatalf("failed reading json file: %s", err)
+	}
+
+	json.Unmarshal(byteValues, &testconfig)
+
+	testconfig.Token = "newToken"
+
+	newJsonFile, err := json.MarshalIndent(testconfig, "", "")
+	if err != nil {
+		log.Fatalf("failed marshalling json file: %s", err)
+	}
+
+	err = ioutil.WriteFile("test.json", newJsonFile, 0644)
+	if err != nil {
+		log.Fatalf("failed write new json file: %s", err)
+	}
 }

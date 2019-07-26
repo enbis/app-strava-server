@@ -1,0 +1,6 @@
+{
+"Token": "newToken",
+"ClientId": "clientId",
+"ClientSecret": "clientSecret",
+"RefreshToken": "refreshToken"
+}
