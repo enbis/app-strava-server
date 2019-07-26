@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 
 	"github.com/enbis/app-strava-server/data"
+	"github.com/enbis/app-strava-server/models"
 	"github.com/enbis/app-strava-server/stravaAPI"
 	"github.com/wcharczuk/go-chart"
 )
@@ -41,10 +43,19 @@ func main() {
 
 func requestDataBarChart(res http.ResponseWriter, req *http.Request) {
 
-	acts, err := stravaAPI.RequestActivities()
+	acts, resp := stravaAPI.RequestActivities()
 
-	if err != nil {
-		log.Print(err)
+	if resp.Message != "" {
+		res.Header().Set("Content-Type", "text/html; charset=utf-8")
+		t, err := template.ParseFiles("templates/template.html")
+		if err != nil {
+			fmt.Println("Unable to load template")
+		}
+		resp := models.Response{
+			Message: resp.Message,
+		}
+
+		t.Execute(res, resp)
 	} else {
 		run, bike, swim := data.GetTimeOfActs(acts)
 
@@ -81,10 +92,10 @@ func requestDataBarChart(res http.ResponseWriter, req *http.Request) {
 
 func requestDataPieChart(res http.ResponseWriter, req *http.Request) {
 
-	acts, err := stravaAPI.RequestActivities()
+	acts, resp := stravaAPI.RequestActivities()
 
-	if err != nil {
-		log.Print(err)
+	if resp.Message != "" {
+		log.Print(resp.Message)
 	} else {
 		run, bike, swim := data.GetNumberOfActs(acts)
 		pie := chart.PieChart{

@@ -2,7 +2,6 @@ package stravaAPI
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -27,7 +26,7 @@ func init() {
 	}
 }
 
-func RequestActivities() ([]models.Activity, error) {
+func RequestActivities() ([]models.Activity, models.Response) {
 
 	var bearer = "Bearer " + configuration.Token
 
@@ -58,8 +57,8 @@ func RequestActivities() ([]models.Activity, error) {
 			os.Exit(1)
 		}
 		fmt.Printf("%+v", activities)
-		return activities, nil
+		return activities, response
 	}
 
-	return nil, errors.New(response.Message)
+	return nil, response
 }
