@@ -70,10 +70,15 @@ func requestDataBarChart(res http.ResponseWriter, req *http.Request) {
 				},
 			},
 			Height:   512,
+			Width:    512,
 			BarWidth: 100,
 			XAxis:    chart.StyleShow(),
 			YAxis: chart.YAxis{
 				Style: chart.StyleShow(),
+				Range: &chart.ContinuousRange{
+					Min: 0.0,
+					Max: 100.0,
+				},
 			},
 			Bars: []chart.Value{
 				{Value: run, Label: "Run"},

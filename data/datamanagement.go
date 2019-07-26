@@ -21,7 +21,6 @@ func GetNumberOfActs(acts []models.Activity) (run, bike, swim float64) {
 		}
 	}
 
-	fmt.Printf("Run %v Bike %v Swim %v", run, bike, swim)
 	return
 
 }
@@ -48,10 +47,3 @@ func GetTimeOfActs(acts []models.Activity) (run, bike, swim float64) {
 
 	return
 }
-
-// func secondToH(secondsIn float64) float64 {
-// 	minutes := int(secondsIn) / 60
-// 	seconds := int(secondsIn) % 60
-
-// 	return 0.0
-// }
