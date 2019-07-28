@@ -2,6 +2,7 @@ package stravaAPI
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -26,7 +27,7 @@ func init() {
 	}
 }
 
-func RequestActivities() ([]models.Activity, models.Response) {
+func RequestActivities() ([]models.Activity, error) {
 
 	var bearer = "Bearer " + configuration.Token
 
@@ -57,8 +58,47 @@ func RequestActivities() ([]models.Activity, models.Response) {
 			os.Exit(1)
 		}
 		fmt.Printf("%+v", activities)
-		return activities, response
+		return activities, nil
 	}
 
-	return nil, response
+	return nil, errors.New(response.Message)
+}
+
+func RequestSingleAct(idAct string) (models.SingleActivity, error) {
+	var bearer = "Bearer " + configuration.Token
+
+	full_req := fmt.Sprintf("https://www.strava.com/api/v3/activities/%s?include_all_efforts=", idAct)
+
+	req, err := http.NewRequest("GET", full_req, nil)
+	req.Header.Add("Authorization", bearer)
+
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	bodyByte := []byte(body)
+
+	var response models.Response
+	var activity models.SingleActivity
+
+	err = json.Unmarshal(bodyByte, &response)
+
+	if err != nil {
+		err = json.Unmarshal(bodyByte, &activity)
+
+		return activity, nil
+	}
+
+	return activity, errors.New(response.Message)
+
 }

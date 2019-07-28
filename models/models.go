@@ -30,6 +30,30 @@ type Activity struct {
 	Type        string
 }
 
+type SingleActivity struct {
+	Split_Metrics []SplitMetrics `json:"splits_metrics"`
+	Laps          []Laps         `json:"laps"`
+}
+
+type SplitMetrics struct {
+	Distance             float64 `json:"distance"`
+	Elapsed_Time         int     `json:"elapsed_time"`
+	Elevation_Difference float64 `json:"elevation_difference"`
+	Moving_Time          int     `json:"moving_time"`
+	Split                int     `json:"split"`
+	Average_Speed        float64 `json:"average_speed"`
+}
+
+type Laps struct {
+	Distance      float64 `json:"distance"`
+	Elapsed_Time  int     `json:"elapsed_time"`
+	Moving_Time   int     `json:"moving_time"`
+	Split         int     `json:"split"`
+	Average_Speed float64 `json:"average_speed"`
+	Max_Speed     float64 `json:"max_speed"`
+	Average_Watts float64 `json:"average_watts"`
+}
+
 type ActivityType int
 
 const (

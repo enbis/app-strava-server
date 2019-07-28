@@ -18,6 +18,7 @@ type Prova struct {
 }
 
 func main() {
+	http.HandleFunc("/singleactivity", requestSingleActivity)
 	http.HandleFunc("/piechart", requestDataPieChart)
 	http.HandleFunc("/barchart", requestDataBarChart)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -41,18 +42,47 @@ func main() {
 	http.ListenAndServe(":3300", nil)
 }
 
+func requestSingleActivity(res http.ResponseWriter, req *http.Request) {
+
+	ids, ok := req.URL.Query()["id"]
+	if !ok || len(ids[0]) < 1 {
+		log.Println("Url Param key is missing")
+		return
+	}
+
+	id_act := ids[0]
+	fmt.Println("id_act", id_act)
+	act, err := stravaAPI.RequestSingleAct(id_act)
+
+	if err != nil {
+		res.Header().Set("Content-Type", "text/html; charset=utf-8")
+		t, err2 := template.ParseFiles("templates/template.html")
+		if err2 != nil {
+			fmt.Println("Unable to load template")
+		}
+
+		resp := models.Response{
+			Message: err.Error(),
+		}
+
+		t.Execute(res, resp)
+	} else {
+		fmt.Println(act.Laps)
+	}
+}
+
 func requestDataBarChart(res http.ResponseWriter, req *http.Request) {
 
-	acts, resp := stravaAPI.RequestActivities()
+	acts, err := stravaAPI.RequestActivities()
 
-	if resp.Message != "" {
+	if err != nil {
 		res.Header().Set("Content-Type", "text/html; charset=utf-8")
-		t, err := template.ParseFiles("templates/template.html")
-		if err != nil {
+		t, err2 := template.ParseFiles("templates/template.html")
+		if err2 != nil {
 			fmt.Println("Unable to load template")
 		}
 		resp := models.Response{
-			Message: resp.Message,
+			Message: err.Error(),
 		}
 
 		t.Execute(res, resp)
@@ -97,10 +127,19 @@ func requestDataBarChart(res http.ResponseWriter, req *http.Request) {
 
 func requestDataPieChart(res http.ResponseWriter, req *http.Request) {
 
-	acts, resp := stravaAPI.RequestActivities()
+	acts, err := stravaAPI.RequestActivities()
 
-	if resp.Message != "" {
-		log.Print(resp.Message)
+	if err != nil {
+		res.Header().Set("Content-Type", "text/html; charset=utf-8")
+		t, err2 := template.ParseFiles("templates/template.html")
+		if err2 != nil {
+			fmt.Println("Unable to load template")
+		}
+		resp := models.Response{
+			Message: err.Error(),
+		}
+
+		t.Execute(res, resp)
 	} else {
 		run, bike, swim := data.GetNumberOfActs(acts)
 		pie := chart.PieChart{

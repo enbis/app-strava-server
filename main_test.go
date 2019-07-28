@@ -152,7 +152,7 @@ func TestGetAct(t *testing.T) {
 
 	var bearer = "Bearer " + configuration.Token
 
-	req, err := http.NewRequest("GET", "https://www.strava.com/api/v3/activities/2521280000?include_all_efforts=", nil)
+	req, err := http.NewRequest("GET", "https://www.strava.com/api/v3/activities/2567553625?include_all_efforts=", nil)
 	req.Header.Add("Authorization", bearer)
 
 	if err != nil {
@@ -200,5 +200,30 @@ func TestOverwriteFile(t *testing.T) {
 	err = ioutil.WriteFile("test.json", newJsonFile, 0644)
 	if err != nil {
 		log.Fatalf("failed write new json file: %s", err)
+	}
+}
+
+func TestNestedJson(t *testing.T) {
+
+	jsonfile, err := os.Open("testNested.json")
+	if err != nil {
+		log.Fatalf("failed opening file: %s", err)
+	}
+	defer jsonfile.Close()
+
+	byteValues, err := ioutil.ReadAll(jsonfile)
+	if err != nil {
+		log.Fatalf("failed reading json file: %s", err)
+	}
+
+	var response models.SingleActivity
+	err = json.Unmarshal(byteValues, &response)
+
+	if err == nil {
+		for _, lap := range response.Laps {
+			fmt.Println(lap)
+		}
+	} else {
+		fmt.Println("error unm ", err.Error())
 	}
 }
